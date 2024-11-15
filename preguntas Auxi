@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preguntas Aleatorias</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .temario-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .tema {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .tema:hover {
+            background-color: #0056b3;
+        }
+        .pregunta {
+            margin-top: 20px;
+        }
+        .respuesta {
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Temario</h1>
+    <div id="temario" class="temario-container">
+        <!-- Los botones de temas se generan automáticamente -->
+    </div>
+    <div id="preguntas" style="display: none;">
+        <h2 id="titulo-tema"></h2>
+        <div class="pregunta">
+            <p id="pregunta"></p>
+            <div id="respuestas"></div>
+        </div>
+        <button onclick="siguientePregunta()">Siguiente Pregunta</button>
+        <button onclick="volverTemario()">Volver al Temario</button>
+    </div>
+
+    <script>
+        const temario = [
+            { 
+                tema: "Tema 1", 
+                preguntas: [
+                    { texto: "¿Cuál es la capital de Francia?", opciones: ["Madrid", "París", "Roma"], correcta: 1 },
+                    { texto: "¿Cuánto es 2 + 2?", opciones: ["3", "4", "5"], correcta: 1 },
+                    // Agrega más preguntas para este tema...
+                ]
+            },
+            { 
+                tema: "Tema 2", 
+                preguntas: [
+                    { texto: "¿Cuál es el planeta más grande?", opciones: ["Tierra", "Júpiter", "Marte"], correcta: 1 },
+                    { texto: "¿Quién escribió 'Don Quijote'?", opciones: ["Cervantes", "Shakespeare", "Homer"], correcta: 0 },
+                    // Más preguntas...
+                ]
+            },
+            // Agrega hasta 10 temas
+        ];
+
+        while (temario.length < 10) {
+            const tema = {
+                tema: `Tema ${temario.length + 1}`,
+                preguntas: [
+                    { texto: `Pregunta 1 del Tema ${temario.length + 1}`, opciones: ["Opción 1", "Opción 2", "Opción 3"], correcta: 0 },
+                    { texto: `Pregunta 2 del Tema ${temario.length + 1}`, opciones: ["Opción 1", "Opción 2", "Opción 3"], correcta: 1 },
+                    // Más preguntas...
+                ]
+            };
+            temario.push(tema);
+        }
+
+        let preguntasRestantes = [];
+        let temaActual = "";
+
+        function cargarTemario() {
+            const contenedorTemario = document.getElementById("temario");
+            contenedorTemario.innerHTML = "";
+            temario.forEach((t, index) => {
+                const boton = document.createElement("button");
+                boton.textContent = t.tema;
+                boton.classList.add("tema");
+                boton.onclick = () => iniciarTema(index);
+                contenedorTemario.appendChild(boton);
+            });
+        }
+
+        function iniciarTema(indiceTema) {
+            temaActual = temario[indiceTema].tema;
+            preguntasRestantes = [...temario[indiceTema].preguntas];
+            document.getElementById("titulo-tema").textContent = temaActual;
+            document.getElementById("temario").style.display = "none";
+            document.getElementById("preguntas").style.display = "block";
+            siguientePregunta();
+        }
+
+        function siguientePregunta() {
+            if (preguntasRestantes.length === 0) {
+                alert("¡Has respondido todas las preguntas de este tema!");
+                volverTemario();
+                return;
+            }
+            const indiceAleatorio = Math.floor(Math.random() * preguntasRestantes.length);
+            const preguntaSeleccionada = preguntasRestantes.splice(indiceAleatorio, 1)[0];
+            mostrarPregunta(preguntaSeleccionada);
+        }
+
+        function mostrarPregunta(pregunta) {
+            document.getElementById("pregunta").textContent = pregunta.texto;
+            const contenedorRespuestas = document.getElementById("respuestas");
+            contenedorRespuestas.innerHTML = "";
+            pregunta.opciones.forEach((opcion, indice) => {
+                const boton = document.createElement("button");
+                boton.textContent = opcion;
+                boton.classList.add("respuesta");
+                boton.onclick = () => verificarRespuesta(indice, pregunta.correcta);
+                contenedorRespuestas.appendChild(boton);
+            });
+        }
+
+        function verificarRespuesta(indiceSeleccionado, indiceCorrecto) {
+            if (indiceSeleccionado === indiceCorrecto) {
+                alert("¡Correcto!");
+            } else {
+                alert("Incorrecto. La respuesta correcta era: " + temario.find(t => t.tema === temaActual).preguntas.find(p => p.opciones[indiceCorrecto]));
+            }
+        }
+
+        function volverTemario() {
+            document.getElementById("preguntas").style.display = "none";
+            document.getElementById("temario").style.display = "block";
+            cargarTemario();
+        }
+
+        // Inicializamos el temario al cargar la página
+        cargarTemario();
+    </script>
+</body>
+</html>
